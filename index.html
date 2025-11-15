@@ -276,7 +276,7 @@
 <div class="app">
   <h1>안전하고 건강한 의생활 시뮬레이터</h1>
   <div class="subtitle">
-    5학년 실과 &lt;안전하고 건강한 의생활&gt; 수행평가용 상황별 옷차림 연습
+    5학년 실과 &lt;안전하고 건강한 의생활&gt; 상황별 옷차림 연습
   </div>
 
   <!-- 1. 상황 선택 -->
@@ -378,7 +378,7 @@
       temp: 22,
       weatherText: "맑음 · 약간 따뜻함",
       storyPages: [
-        "오늘은 드디어 기다리던 운동회 날!\n아침 햇살이 교실 창문으로 쏟아지고, 운동장에는 알록달록 깃발이 펄럭였어요.\n“반 대표 계주 선수는 바로 나야!”\n너는 설렘 가득한 마음으로 침대에서 벌떡 일어났어요.",
+        "오늘은 드디어 기다리던 운동회 날!\n아침 햇살이 교실 창문으로 쏋아지고, 운동장에는 알록달록 깃발이 펄럭였어요.\n“반 대표 계주 선수는 바로 나야!”\n너는 설렘 가득한 마음으로 침대에서 벌떡 일어났어요.",
         "옷장을 열자 옷들이 속닥속닥 이야기를 나누기 시작했어요.\n“나를 입고 가! 내가 제일 눈에 띄거든!” 반짝이는 옷이 말했어요.\n“운동회에는 활동하기 좋은 옷이 더 중요하지 않을까?”\n트레이닝복 바지가 조용히 말했죠.",
         "오늘은 달리기도 하고, 줄넘기도 하고, 친구들과 단체 게임도 해야 해요.\n너무 덥지도 춥지도 않으면서, 무엇보다 다치지 않도록 안전한 옷차림을 해야겠죠?\n자, 이제 운동회에 가장 잘 어울리는 옷을 직접 골라볼까요?"
       ],
@@ -402,14 +402,14 @@
       storyPages: [
         "창밖에는 하얀 입김이 가득.\n오늘은 한겨울 야외체험학습 날이에요.\n버스를 타고 숲속 체험장에 가서 한참을 걸으며 활동해야 해요.",
         "“그냥 예쁜 옷 입고 가면 안 돼?”\n너는 잠깐 고민했지만, 곧 선생님 말씀을 떠올렸어요.\n“겨울 야외체험에서는 발, 손, 귀, 목이 얼지 않게 따뜻하게 입어야 해요.”",
-        "옷장 속에는 두꺼운 패딩과 목도리, 장갑, 모자, 얇은 겉옷이 나란히 걸려 있어요.\n바지와 신발도 여러 가지가 있네요.\n너무 껴입어서 움직이기 힘들어도 안 되고,\n얇게 입어서 덜덜 떨어도 안 돼요.\n이제 겨울 야외체험학습에 잘 어울리는 옷차림을 골라볼까요?"
+        "옷장 속에는 두꺼운 패딩과 목도리, 장갑, 모자, 여러 가지 바지가 나란히 걸려 있어요.\n너무 껴입어서 움직이기 힘들어도 안 되고,\n얇게 입어서 덜덜 떨어도 안 돼요.\n이제 겨울 야외체험학습에 잘 어울리는 옷차림을 골라볼까요?"
       ],
       weights: { weather: 30, activity: 15, safety: 30, etiquette: 25 },
-      idealWarmth: 4,
-      warmthTolerance: 1,
+      idealWarmth: 6,
+      warmthTolerance: 2,
       targetActivity: 2.0,
-      safeRiskLow: 1,
-      safeRiskMid: 3,
+      safeRiskLow: 2,
+      safeRiskMid: 5,
       minEtiquetteOk: 2.0,
       minEtiquetteGood: 2.3,
       formality: "casual"
@@ -550,7 +550,7 @@
     }
   };
 
-  // --------- 옷 데이터 (카테고리별) ----------
+  // --------- 옷 데이터 (카테고리별, 시나리오별 노출 다르게) ----------
   const CLOTHES = {
     top: [
       {
@@ -560,7 +560,8 @@
         activity: 3,
         risk: 0,
         etiquette: 3,
-        tags: ["운동복", "캐주얼"]
+        tags: ["운동복", "캐주얼"],
+        scenarios: ["sportsday", "indoorPE", "rainySchool", "waterPlay", "museum"]
       },
       {
         id: "tshirt_long",
@@ -569,7 +570,8 @@
         activity: 2,
         risk: 0,
         etiquette: 3,
-        tags: ["캐주얼"]
+        tags: ["캐주얼"],
+        scenarios: ["sportsday", "indoorPE", "rainySchool", "winterTrip", "museum"]
       },
       {
         id: "blouse_fancy",
@@ -578,7 +580,8 @@
         activity: 1,
         risk: 1,
         etiquette: 2,
-        tags: ["장식많음", "조금격식"]
+        tags: ["장식많음", "조금격식"],
+        scenarios: ["familyMeal", "schoolEvent", "museum"]
       },
       {
         id: "hoodie",
@@ -587,7 +590,8 @@
         activity: 2,
         risk: 1,
         etiquette: 2,
-        tags: ["후드끈", "캐주얼"]
+        tags: ["후드끈", "캐주얼"],
+        scenarios: ["sportsday", "rainySchool", "winterTrip", "indoorPE"]
       },
       {
         id: "crop_sleeveless",
@@ -596,7 +600,8 @@
         activity: 2,
         risk: 0,
         etiquette: 1,
-        tags: ["노출높음", "캐주얼"]
+        tags: ["노출높음", "캐주얼"],
+        scenarios: ["sportsday", "waterPlay"]
       },
       {
         id: "rashguard_top",
@@ -605,7 +610,28 @@
         activity: 3,
         risk: 0,
         etiquette: 2,
-        tags: ["물놀이", "자외선차단"]
+        tags: ["물놀이", "자외선차단"],
+        scenarios: ["waterPlay"]
+      },
+      {
+        id: "shirt_vest",
+        name: "셔츠 + 조끼",
+        warmth: 1,
+        activity: 2,
+        risk: 0,
+        etiquette: 3,
+        tags: ["격식"],
+        scenarios: ["familyMeal", "schoolEvent", "museum"]
+      },
+      {
+        id: "knit_sweater",
+        name: "니트 스웨터",
+        warmth: 2,
+        activity: 1,
+        risk: 0,
+        etiquette: 3,
+        tags: ["겨울", "단정"],
+        scenarios: ["winterTrip", "familyMeal", "museum"]
       }
     ],
     bottom: [
@@ -616,7 +642,8 @@
         activity: 3,
         risk: 0,
         etiquette: 3,
-        tags: ["운동복"]
+        tags: ["운동복"],
+        scenarios: ["sportsday", "indoorPE", "rainySchool", "winterTrip", "waterPlay"]
       },
       {
         id: "cotton_pants",
@@ -625,7 +652,8 @@
         activity: 2,
         risk: 0,
         etiquette: 3,
-        tags: ["단정"]
+        tags: ["단정"],
+        scenarios: ["familyMeal", "schoolEvent", "museum", "rainySchool"]
       },
       {
         id: "jeans_skinny",
@@ -634,7 +662,8 @@
         activity: 1,
         risk: 0,
         etiquette: 2,
-        tags: ["캐주얼"]
+        tags: ["캐주얼"],
+        scenarios: ["sportsday", "rainySchool", "museum", "familyMeal"]
       },
       {
         id: "shorts_sports",
@@ -643,7 +672,8 @@
         activity: 3,
         risk: 0,
         etiquette: 2,
-        tags: ["운동복"]
+        tags: ["운동복"],
+        scenarios: ["sportsday", "indoorPE", "waterPlay"]
       },
       {
         id: "skirt_short",
@@ -652,7 +682,8 @@
         activity: 1,
         risk: 1,
         etiquette: 2,
-        tags: ["노출높음", "장식많음"]
+        tags: ["노출높음", "장식많음"],
+        scenarios: ["familyMeal", "schoolEvent"]
       },
       {
         id: "swim_shorts",
@@ -661,7 +692,18 @@
         activity: 3,
         risk: 0,
         etiquette: 2,
-        tags: ["물놀이"]
+        tags: ["물놀이"],
+        scenarios: ["waterPlay"]
+      },
+      {
+        id: "slacks",
+        name: "깔끔한 슬랙스",
+        warmth: 1,
+        activity: 2,
+        risk: 0,
+        etiquette: 3,
+        tags: ["격식"],
+        scenarios: ["familyMeal", "schoolEvent", "museum"]
       }
     ],
     outer: [
@@ -672,7 +714,8 @@
         activity: 3,
         risk: 0,
         etiquette: 3,
-        tags: []
+        tags: [],
+        scenarios: ["sportsday", "indoorPE", "familyMeal", "schoolEvent", "waterPlay", "museum", "rainySchool"]
       },
       {
         id: "cardigan_light",
@@ -681,7 +724,8 @@
         activity: 2,
         risk: 0,
         etiquette: 3,
-        tags: ["단정"]
+        tags: ["단정"],
+        scenarios: ["familyMeal", "schoolEvent", "museum", "rainySchool"]
       },
       {
         id: "padded_jacket",
@@ -690,7 +734,8 @@
         activity: 1,
         risk: 0,
         etiquette: 3,
-        tags: ["겨울용"]
+        tags: ["겨울용"],
+        scenarios: ["winterTrip"]
       },
       {
         id: "raincoat",
@@ -700,7 +745,8 @@
         risk: 0,
         etiquette: 3,
         rain: 2,
-        tags: ["비옷", "방수"]
+        tags: ["비옷", "방수"],
+        scenarios: ["rainySchool", "waterPlay"]
       },
       {
         id: "coat_formal",
@@ -709,7 +755,18 @@
         activity: 1,
         risk: 0,
         etiquette: 3,
-        tags: ["격식"]
+        tags: ["격식"],
+        scenarios: ["familyMeal", "schoolEvent", "museum", "winterTrip"]
+      },
+      {
+        id: "windbreaker",
+        name: "얇은 바람막이 점퍼",
+        warmth: 1,
+        activity: 3,
+        risk: 0,
+        etiquette: 3,
+        tags: ["운동복"],
+        scenarios: ["sportsday", "indoorPE", "rainySchool", "waterPlay"]
       }
     ],
     shoes: [
@@ -721,7 +778,8 @@
         risk: 0,
         etiquette: 3,
         rain: 0,
-        tags: ["운동복", "안정"]
+        tags: ["운동복", "안정"],
+        scenarios: ["sportsday", "indoorPE", "rainySchool", "winterTrip", "museum", "familyMeal"]
       },
       {
         id: "slippers",
@@ -731,7 +789,8 @@
         risk: 3,
         etiquette: 1,
         rain: 0,
-        tags: ["위험", "캐주얼"]
+        tags: ["위험", "캐주얼"],
+        scenarios: ["waterPlay", "rainySchool"]
       },
       {
         id: "dress_shoes",
@@ -741,17 +800,19 @@
         risk: 2,
         etiquette: 3,
         rain: 0,
-        tags: ["격식"]
+        tags: ["격식"],
+        scenarios: ["familyMeal", "schoolEvent", "museum"]
       },
       {
         id: "rain_boots",
         name: "레인부츠",
         warmth: 1,
         activity: 2,
-        risk: 1,
+        risk: 0,
         etiquette: 3,
         rain: 2,
-        tags: ["방수"]
+        tags: ["방수"],
+        scenarios: ["rainySchool", "waterPlay", "winterTrip"]
       },
       {
         id: "indoor_slippers",
@@ -760,7 +821,8 @@
         activity: 2,
         risk: 1,
         etiquette: 3,
-        tags: ["실내용"]
+        tags: ["실내용"],
+        scenarios: ["indoorPE", "museum"]
       },
       {
         id: "water_sandals",
@@ -770,7 +832,19 @@
         risk: 1,
         etiquette: 2,
         rain: 2,
-        tags: ["물놀이", "방수"]
+        tags: ["물놀이", "방수"],
+        scenarios: ["waterPlay"]
+      },
+      {
+        id: "winter_boots",
+        name: "털부츠",
+        warmth: 2,
+        activity: 1,
+        risk: 1,
+        etiquette: 3,
+        rain: 1,
+        tags: ["겨울"],
+        scenarios: ["winterTrip"]
       }
     ],
     accessory: [
@@ -781,7 +855,8 @@
         activity: 3,
         risk: 0,
         etiquette: 3,
-        tags: []
+        tags: [],
+        scenarios: ["sportsday", "indoorPE", "rainySchool", "winterTrip", "familyMeal", "schoolEvent", "waterPlay", "museum"]
       },
       {
         id: "cap_hat",
@@ -790,16 +865,18 @@
         activity: 3,
         risk: 0,
         etiquette: 3,
-        tags: ["햇빛차단"]
+        tags: ["햇빛차단"],
+        scenarios: ["sportsday", "indoorPE", "waterPlay", "rainySchool"]
       },
       {
         id: "scarf_long",
         name: "긴 목도리",
         warmth: 1,
         activity: 2,
-        risk: 2,
+        risk: 1,
         etiquette: 3,
-        tags: ["긴끈", "겨울"]
+        tags: ["긴끈", "겨울"],
+        scenarios: ["winterTrip"]
       },
       {
         id: "big_earring",
@@ -808,7 +885,8 @@
         activity: 3,
         risk: 2,
         etiquette: 1,
-        tags: ["장식많음"]
+        tags: ["장식많음"],
+        scenarios: ["familyMeal", "schoolEvent"]
       },
       {
         id: "backpack",
@@ -817,7 +895,8 @@
         activity: 2,
         risk: 0,
         etiquette: 3,
-        tags: ["실용적"]
+        tags: ["실용적"],
+        scenarios: ["sportsday", "rainySchool", "winterTrip", "indoorPE", "museum"]
       },
       {
         id: "crossbag_small",
@@ -826,12 +905,32 @@
         activity: 2,
         risk: 1,
         etiquette: 3,
-        tags: ["실용적"]
+        tags: ["실용적"],
+        scenarios: ["familyMeal", "schoolEvent", "museum"]
+      },
+      {
+        id: "rain_hat",
+        name: "방수 모자",
+        warmth: 0,
+        activity: 3,
+        risk: 0,
+        etiquette: 3,
+        tags: ["방수"],
+        scenarios: ["rainySchool", "waterPlay"]
+      },
+      {
+        id: "winter_gloves",
+        name: "벙어리 장갑",
+        warmth: 1,
+        activity: 2,
+        risk: 0,
+        etiquette: 3,
+        tags: ["겨울"],
+        scenarios: ["winterTrip"]
       }
     ]
   };
 
-  // 기본값 rain, warmth 없는 경우 처리
   function normalizeItem(item) {
     return {
       rain: 0,
@@ -981,7 +1080,14 @@
         <div class="group-title">${group.label}</div>
         <div class="group-subtitle">${group.subtitle}</div>
       `;
-      const items = CLOTHES[group.key] || [];
+
+      let items = CLOTHES[group.key] || [];
+      // 시나리오별로 노출할 옷 필터링
+      items = items.filter(it => {
+        if (it.scenarios && !it.scenarios.includes(sc.key)) return false;
+        return true;
+      });
+
       items.forEach(item => {
         const option = document.createElement("label");
         option.className = "item-option";
@@ -993,7 +1099,7 @@
         input.dataset.info = JSON.stringify({ category: group.key, ...item });
         input.addEventListener("change", updateDressSummary);
 
-        // 기본 선택값: no_outer, no_acc 등
+        // 기본 선택값: no_outer, no_acc
         if (item.id === "no_outer" || item.id === "no_acc") {
           input.checked = true;
         }
@@ -1023,7 +1129,6 @@
     const sc = SCENARIOS[currentScenarioKey];
     const items = getSelectedItems();
     const cats = ["top", "bottom", "shoes"];
-    // 필수 카테고리 체크
     let missingRequired = [];
     cats.forEach(cat => {
       const hasCat = items.some(it => it.category === cat);
@@ -1060,7 +1165,7 @@
       weatherScore = Math.round(wWeight * 0.3);
     }
 
-    // 비나 물놀이 상황에서 방수 장비가 없으면 감점
+    // 비/물놀이 상황에서 방수 장비 없으면 감점
     if ((sc.key === "rainySchool" || sc.key === "waterPlay") && !rainScoreFlag) {
       weatherScore = Math.round(weatherScore * 0.5);
     }
@@ -1076,15 +1181,15 @@
       activityScore = Math.round(aWeight * 0.3);
     }
 
-    // 3) 안전 점수
+    // 3) 안전 점수 (완화 버전)
     let safetyScore = 0;
     const sWeight = sc.weights.safety || 0;
     if (riskSum <= sc.safeRiskLow) {
       safetyScore = sWeight;
     } else if (riskSum <= sc.safeRiskMid) {
-      safetyScore = Math.round(sWeight * 0.6);
+      safetyScore = Math.round(sWeight * 0.8);
     } else {
-      safetyScore = Math.round(sWeight * 0.2);
+      safetyScore = Math.round(sWeight * 0.4);
     }
 
     // 4) 예절·TPO 점수
@@ -1104,12 +1209,10 @@
     }
     if (totalScore > 100) totalScore = 100;
 
-    // 피드백 작성
     const feedbackLines = [];
     const goodLines = [];
     const badLines = [];
 
-    // 좋은 점
     if (weatherScore >= (sc.weights.weather || 0) * 0.8) {
       goodLines.push("· 기온과 날씨에 어울리는 옷을 잘 골랐어요.");
     }
@@ -1123,7 +1226,6 @@
       goodLines.push("· 이 상황에 어울리는 단정한 옷차림을 잘 선택했어요.");
     }
 
-    // 아쉬운 점
     if (weatherScore <= (sc.weights.weather || 0) * 0.4) {
       if (warmthSum < sc.idealWarmth - sc.warmthTolerance) {
         badLines.push("· 전체적으로 너무 얇게 입어서 추울 수 있어요. 옷을 한 겹 더 입거나 더 따뜻한 옷을 골라보세요.");
@@ -1160,7 +1262,6 @@
       feedbackLines.push("· 이번 선택을 바탕으로, 상황과 날씨를 한 번 더 생각해 보면서 다른 조합도 만들어 보면 좋아요.");
     }
 
-    // 결과 뱃지
     let badge = "";
     if (totalScore >= 90) {
       badge = "완전 멋진 선택! 상황·날씨·예절을 모두 잘 고려한 옷차림이에요. 👍";
@@ -1185,6 +1286,7 @@
   }
 
   function renderResult(result) {
+    const sc = SCENARIOS[currentScenarioKey];
     document.getElementById("resultScore").textContent = result.score;
     document.getElementById("resultBadge").textContent = result.badge;
 
@@ -1211,6 +1313,17 @@
       : "선택한 옷이 없습니다.");
 
     [li1, li2, li3, li4, li5].forEach(li => listEl.appendChild(li));
+
+    // 겨울/비/물놀이 상황용 추가 한 줄 (선택)
+    if (currentScenarioKey === "winterTrip") {
+      const li6 = document.createElement("li");
+      li6.textContent = `겨울 옷차림으로 봤을 때 따뜻함은 ${
+        result.warmthSum >= sc.idealWarmth + 1 ? "꽤 충분" :
+        result.warmthSum <= sc.idealWarmth - 1 ? "조금 부족" :
+        "적당"
+      }한 편이에요.`;
+      listEl.appendChild(li6);
+    }
   }
 
   // --------- 이벤트 바인딩 ---------
