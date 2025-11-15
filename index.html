@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>의생활 옷차림 시뮬레이터</title>
+  <style>
+    :root {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      background: linear-gradient(180deg, #fdf6e3, #f0f6ff);
+    }
+    .app {
+      max-width: 960px;
+      width: 100%;
+      margin: 24px;
+      padding: 22px 20px 26px;
+      background: #ffffffcc;
+      border-radius: 16px;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.06);
+    }
+    h1 {
+      text-align: center;
+      margin: 0 0 10px;
+      font-size: 24px;
+    }
+    .subtitle {
+      text-align: center;
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 20px;
+    }
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    .scenario-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin-top: 10px;
+    }
+    .scenario-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 12px 12px 14px;
+      border: 1px solid #e3e3e3;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+      position: relative;
+    }
+    .scenario-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.06);
+      border-color: #92c5ff;
+    }
+    .scenario-card.selected {
+      border-color: #4b8cf5;
+      box-shadow: 0 8px 22px rgba(75,140,245,0.25);
+    }
+    .scenario-title {
+      font-weight: 700;
+      font-size: 15px;
+      margin-bottom: 2px;
+    }
+    .scenario-emoji {
+      font-size: 24px;
+      margin-right: 6px;
+    }
+    .scenario-desc {
+      font-size: 13px;
+      color: #555;
+      margin-bottom: 4px;
+    }
+    .scenario-meta {
+      font-size: 11px;
+      color: #777;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      background: #f0f4ff;
+      color: #3b5a9b;
+      margin-right: 4px;
+    }
+
+    .btn-row {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+    button {
+      border-radius: 999px;
+      padding: 8px 16px;
+      border: none;
+      font-size: 14px;
+      cursor: pointer;
+      background: #4b8cf5;
+      color: white;
+      box-shadow: 0 4px 10px rgba(75,140,245,0.35);
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.1s ease;
+    }
+    button:hover {
+      background: #3a78dd;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(75,140,245,0.4);
+    }
+    button.secondary {
+      background: #e5ebf5;
+      color: #333;
+      box-shadow: none;
+    }
+    button.secondary:hover {
+      background: #d4deee;
+      box-shadow: none;
+    }
+    button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .story-page {
+      min-height: 160px;
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px 14px;
+      border: 1px dashed #e0cfa6;
+      position: relative;
+      overflow: hidden;
+    }
+    .story-badge {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      font-size: 11px;
+      color: #777;
+      background: #fdf0d0;
+      padding: 3px 8px;
+      border-radius: 999px;
+    }
+    .story-text {
+      font-size: 14px;
+      line-height: 1.6;
+      white-space: pre-line;
+    }
+    .story-page-index {
+      margin-top: 8px;
+      font-size: 12px;
+      text-align: right;
+      color: #666;
+    }
+
+    .builder-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-top: 10px;
+    }
+    .group-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 10px 10px 12px;
+      border: 1px solid #e4e4e4;
+    }
+    .group-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .group-subtitle {
+      font-size: 11px;
+      color: #777;
+      margin-bottom: 6px;
+    }
+    .item-option {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      font-size: 13px;
+      padding: 4px 0;
+    }
+    .item-option input {
+      margin-top: 3px;
+    }
+    .item-main {
+      font-weight: 500;
+    }
+    .item-meta {
+      font-size: 11px;
+      color: #666;
+    }
+    .summary-box {
+      background: #fff;
+      border-radius: 12px;
+      padding: 12px 12px 10px;
+      border: 1px solid #e4e4e4;
+      margin-top: 10px;
+      font-size: 13px;
+    }
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+    .summary-label { color: #666; }
+    .summary-value { font-weight: 600; }
+
+    .status-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #555;
+      margin-bottom: 6px;
+    }
+
+    .result-main-score {
+      font-size: 20px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 6px;
+    }
+    .result-badge {
+      text-align: center;
+      font-size: 13px;
+      margin-bottom: 10px;
+      color: #555;
+    }
+    .feedback-box {
+      background: #fff;
+      border-radius: 12px;
+      padding: 12px 12px 14px;
+      border-left: 5px solid #4b8cf5;
+      font-size: 13px;
+      line-height: 1.6;
+      white-space: pre-line;
+    }
+    .feedback-box.good {
+      border-left-color: #4caf50;
+      background: #f5fff6;
+    }
+    .feedback-box.bad {
+      border-left-color: #f44336;
+      background: #fff6f5;
+    }
+    .result-list {
+      margin-top: 10px;
+      font-size: 13px;
+    }
+    .result-list ul {
+      padding-left: 18px;
+      margin: 4px 0 0;
+    }
+
+    @media (max-width: 600px) {
+      .app {
+        margin: 12px;
+        padding: 18px 14px 20px;
+      }
+      h1 { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <h1>안전하고 건강한 의생활 시뮬레이터</h1>
+  <div class="subtitle">
+    5학년 실과 &lt;안전하고 건강한 의생활&gt; 수행평가용 상황별 옷차림 연습
+  </div>
+
+  <!-- 1. 상황 선택 -->
+  <div id="screen-scenario" class="screen active">
+    <h2>1단계. 어떤 상황에서 옷을 입을까요?</h2>
+    <p style="font-size:13px;color:#555;margin-top:4px;">
+      상황을 하나 고른 뒤, 그 상황에 어울리는 옷차림을 만들어보세요.
+    </p>
+    <div id="scenarioGrid" class="scenario-grid"></div>
+    <div class="btn-row">
+      <button id="btnScenarioNext" disabled>이 상황으로 이야기 시작하기 ▶</button>
+    </div>
+  </div>
+
+  <!-- 2. 스토리 -->
+  <div id="screen-story" class="screen">
+    <h2>2단계. 짧은 동화 속 상황 알아보기</h2>
+    <div class="status-row">
+      <div id="storyScenarioTitle"></div>
+      <div id="storyScenarioMeta"></div>
+    </div>
+    <div id="storyContainer" class="story-page">
+      <div class="story-badge" id="storyScenarioBadge"></div>
+      <div id="storyText" class="story-text"></div>
+      <div id="storyPageIndex" class="story-page-index"></div>
+    </div>
+    <div class="btn-row">
+      <button class="secondary" id="btnStoryBack">◀ 상황 다시 고르기</button>
+      <button id="btnStoryNext">다음 장 넘기기 ▶</button>
+    </div>
+  </div>
+
+  <!-- 3. 옷 고르기 -->
+  <div id="screen-dress" class="screen">
+    <h2>3단계. 옷차림 골라보기</h2>
+    <div id="dressScenarioInfo" style="font-size:13px;color:#555;margin-bottom:6px;"></div>
+    <div id="dressBadges" style="margin-bottom:6px;"></div>
+
+    <div class="builder-grid" id="dressGrid"></div>
+
+    <div class="summary-box">
+      <div class="summary-row">
+        <div class="summary-label">선택한 옷 개수</div>
+        <div class="summary-value" id="sumCount">0개</div>
+      </div>
+      <div class="summary-row">
+        <div class="summary-label">따뜻함 합계(대략)</div>
+        <div class="summary-value" id="sumWarmth">0</div>
+      </div>
+      <div class="summary-row">
+        <div class="summary-label">활동성 평균(1~3)</div>
+        <div class="summary-value" id="sumActivity">0</div>
+      </div>
+      <div class="summary-row">
+        <div class="summary-label">위험 요소 합계</div>
+        <div class="summary-value" id="sumRisk">0</div>
+      </div>
+      <div class="summary-row">
+        <div class="summary-label">예절 점수 평균(1~3)</div>
+        <div class="summary-value" id="sumEtiquette">0</div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="secondary" id="btnDressBack">◀ 이야기 다시 보기</button>
+      <button id="btnEvaluate">점수 & 피드백 보기 ▶</button>
+    </div>
+  </div>
+
+  <!-- 4. 결과 -->
+  <div id="screen-result" class="screen">
+    <h2>4단계. 결과 확인</h2>
+    <div class="result-main-score">
+      총점 <span id="resultScore">0</span>점 / 100점
+    </div>
+    <div class="result-badge" id="resultBadge"></div>
+    <div class="feedback-box" id="feedbackBox"></div>
+
+    <div class="result-list">
+      <strong>📌 내가 고른 옷 요약</strong>
+      <ul id="resultSummaryList"></ul>
+    </div>
+
+    <div class="btn-row">
+      <button class="secondary" id="btnResultBack">◀ 옷 다시 고르기</button>
+      <button id="btnRestart">처음부터 다시 하기 🔁</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // --------- 시나리오 데이터 ---------
+  const SCENARIOS = {
+    sportsday: {
+      key: "sportsday",
+      name: "봄 운동회 날",
+      emoji: "🎈",
+      shortDesc: "운동장에서 신나게 뛰는 날",
+      temp: 22,
+      weatherText: "맑음 · 약간 따뜻함",
+      storyPages: [
+        "오늘은 드디어 기다리던 운동회 날!\n아침 햇살이 교실 창문으로 쏟아지고, 운동장에는 알록달록 깃발이 펄럭였어요.\n“반 대표 계주 선수는 바로 나야!”\n너는 설렘 가득한 마음으로 침대에서 벌떡 일어났어요.",
+        "옷장을 열자 옷들이 속닥속닥 이야기를 나누기 시작했어요.\n“나를 입고 가! 내가 제일 눈에 띄거든!” 반짝이는 옷이 말했어요.\n“운동회에는 활동하기 좋은 옷이 더 중요하지 않을까?”\n트레이닝복 바지가 조용히 말했죠.",
+        "오늘은 달리기도 하고, 줄넘기도 하고, 친구들과 단체 게임도 해야 해요.\n너무 덥지도 춥지도 않으면서, 무엇보다 다치지 않도록 안전한 옷차림을 해야겠죠?\n자, 이제 운동회에 가장 잘 어울리는 옷을 직접 골라볼까요?"
+      ],
+      weights: { weather: 20, activity: 30, safety: 30, etiquette: 20 },
+      idealWarmth: 1,
+      warmthTolerance: 1,
+      targetActivity: 2.4,
+      safeRiskLow: 1,
+      safeRiskMid: 3,
+      minEtiquetteOk: 2.0,
+      minEtiquetteGood: 2.3,
+      formality: "casual"
+    },
+    winterTrip: {
+      key: "winterTrip",
+      name: "한겨울 야외체험학습",
+      emoji: "❄️",
+      shortDesc: "춥지만 신나는 겨울 체험",
+      temp: 0,
+      weatherText: "맑음 · 매우 추움 · 바람 조금",
+      storyPages: [
+        "창밖에는 하얀 입김이 가득.\n오늘은 한겨울 야외체험학습 날이에요.\n버스를 타고 숲속 체험장에 가서 한참을 걸으며 활동해야 해요.",
+        "“그냥 예쁜 옷 입고 가면 안 돼?”\n너는 잠깐 고민했지만, 곧 선생님 말씀을 떠올렸어요.\n“겨울 야외체험에서는 발, 손, 귀, 목이 얼지 않게 따뜻하게 입어야 해요.”",
+        "옷장 속에는 두꺼운 패딩과 목도리, 장갑, 모자, 얇은 겉옷이 나란히 걸려 있어요.\n바지와 신발도 여러 가지가 있네요.\n너무 껴입어서 움직이기 힘들어도 안 되고,\n얇게 입어서 덜덜 떨어도 안 돼요.\n이제 겨울 야외체험학습에 잘 어울리는 옷차림을 골라볼까요?"
+      ],
+      weights: { weather: 30, activity: 15, safety: 30, etiquette: 25 },
+      idealWarmth: 4,
+      warmthTolerance: 1,
+      targetActivity: 2.0,
+      safeRiskLow: 1,
+      safeRiskMid: 3,
+      minEtiquetteOk: 2.0,
+      minEtiquetteGood: 2.3,
+      formality: "casual"
+    },
+    rainySchool: {
+      key: "rainySchool",
+      name: "장마철 등교길",
+      emoji: "🌧️",
+      shortDesc: "비 오는 날 미끄러운 길",
+      temp: 24,
+      weatherText: "강한 비 · 습함",
+      storyPages: [
+        "아침부터 창밖에 빗소리가 요란해요.\n오늘은 장마철, 비가 하루 종일 온다는 예보가 떴어요.\n학교까지 가는 길에는 미끄러운 길도 있고, 물웅덩이도 많아요.",
+        "“어차피 금방 학교 도착하는데 대충 신고 가도 되지 않을까?”\n슬리퍼와 운동화, 레인부츠가 너를 올려다보며 서로 먼저 나가겠다고 아우성입니다.",
+        "옷장에는 얇은 비옷과 우산, 겉옷, 여러 가지 바지가 걸려 있어요.\n비에 흠뻑 젖으면 하루 종일 축축하고, 감기에 걸릴지도 몰라요.\n이제 비 오는 날 등교에 잘 어울리는 옷차림을 골라볼까요?"
+      ],
+      weights: { weather: 30, activity: 10, safety: 30, etiquette: 30 },
+      idealWarmth: 2,
+      warmthTolerance: 1,
+      targetActivity: 2.0,
+      safeRiskLow: 1,
+      safeRiskMid: 3,
+      minEtiquetteOk: 2.0,
+      minEtiquetteGood: 2.3,
+      formality: "casual",
+      needRainProtection: true
+    },
+    indoorPE: {
+      key: "indoorPE",
+      name: "실내 체육관 수업",
+      emoji: "🏀",
+      shortDesc: "체육관에서 하는 체육",
+      temp: 20,
+      weatherText: "실내 · 적당한 온도",
+      storyPages: [
+        "오늘 체육 시간은 운동장이 아니라 실내 체육관에서 해요.\n농구, 피구, 줄넘기까지 신나게 할 예정이에요.",
+        "실내 바닥은 미끄러울 수도 있고,\n친구들과 부딪힐 수도 있어요.\n너무 장식이 많거나 긴 끈이 있는 옷은 위험할지도 몰라요.",
+        "실내에서 예절을 지키면서도\n마음껏 뛸 수 있는 옷차림이 필요해요.\n이제 체육관 수업에 알맞은 옷차림을 골라볼까요?"
+      ],
+      weights: { weather: 10, activity: 35, safety: 35, etiquette: 20 },
+      idealWarmth: 1,
+      warmthTolerance: 1,
+      targetActivity: 2.5,
+      safeRiskLow: 1,
+      safeRiskMid: 3,
+      minEtiquetteOk: 2.0,
+      minEtiquetteGood: 2.3,
+      formality: "casual"
+    },
+    familyMeal: {
+      key: "familyMeal",
+      name: "가족 모임 · 외식",
+      emoji: "👨‍👩‍👧",
+      shortDesc: "식당에서 하는 가족 모임",
+      temp: 18,
+      weatherText: "실내 · 조금 쌀쌀한 날",
+      storyPages: [
+        "오늘 저녁은 오랜만에 가족들이 모두 모이는 날이에요.\n할머니, 할아버지도 오시고, 사진도 많이 찍을 예정이에요.",
+        "집에서 입는 잠옷이나 늘어진 티셔츠를 그대로 입고 가면\n조금 실례일지도 몰라요.\n그렇다고 너무 불편한 옷을 입으면 밥 먹을 때 힘들겠죠?",
+        "편안하면서도 단정한 옷,\n가족을 존중하는 마음을 보여 줄 수 있는 옷차림이라면 더 좋겠죠.\n이제 가족 모임에 어울리는 옷을 골라볼까요?"
+      ],
+      weights: { weather: 10, activity: 10, safety: 10, etiquette: 70 },
+      idealWarmth: 1,
+      warmthTolerance: 2,
+      targetActivity: 1.8,
+      safeRiskLow: 2,
+      safeRiskMid: 4,
+      minEtiquetteOk: 2.1,
+      minEtiquetteGood: 2.5,
+      formality: "formal"
+    },
+    schoolEvent: {
+      key: "schoolEvent",
+      name: "학교 발표회 · 학예회",
+      emoji: "🎤",
+      shortDesc: "친구·학부모 앞에서 발표하는 날",
+      temp: 19,
+      weatherText: "실내 · 약간 선선함",
+      storyPages: [
+        "오늘은 학교에서 발표회와 학예회가 열리는 날이에요.\n친구들, 선생님, 학부모님들이 모두 모이는 특별한 날이죠.",
+        "너는 무대에 서서 발표를 하거나\n친구들이 준비한 공연을 관람할 수도 있어요.\n너무 눈에 띄는 옷이나 장난스러운 문구가 적힌 옷은\n행사 분위기를 흐릴 수도 있어요.",
+        "단정하면서도 나다운 모습을 보여 줄 수 있는 옷.\n너무 불편하지 않으면서도 예의 있는 옷차림.\n이제 학교 발표회에 알맞은 옷을 골라볼까요?"
+      ],
+      weights: { weather: 10, activity: 20, safety: 10, etiquette: 60 },
+      idealWarmth: 1,
+      warmthTolerance: 2,
+      targetActivity: 2.0,
+      safeRiskLow: 2,
+      safeRiskMid: 4,
+      minEtiquetteOk: 2.3,
+      minEtiquetteGood: 2.6,
+      formality: "formal"
+    },
+    waterPlay: {
+      key: "waterPlay",
+      name: "여름 물놀이터",
+      emoji: "🏖️",
+      shortDesc: "시원한 물놀이하는 날",
+      temp: 30,
+      weatherText: "무더위 · 햇빛 강함",
+      storyPages: [
+        "오늘은 친구들과 물놀이터에 가는 날이에요.\n시원한 물줄기와 분수, 미끄럼틀이 기다리고 있어요.",
+        "물에 젖어도 괜찮은 옷인지,\n자외선에서 피부를 보호해 줄 수 있는지,\n미끄러지지 않는 신발인지가 중요해요.",
+        "너무 노출이 심한 옷이나, 미끄러운 슬리퍼는 위험할 수 있어요.\n이제 안전하고 건강하게 즐길 수 있는 물놀이 옷차림을 골라볼까요?"
+      ],
+      weights: { weather: 15, activity: 25, safety: 40, etiquette: 20 },
+      idealWarmth: 0,
+      warmthTolerance: 1,
+      targetActivity: 2.4,
+      safeRiskLow: 1,
+      safeRiskMid: 3,
+      minEtiquetteOk: 2.0,
+      minEtiquetteGood: 2.3,
+      formality: "casual",
+      needRainProtection: true
+    },
+    museum: {
+      key: "museum",
+      name: "도서관 · 박물관 견학",
+      emoji: "🏛️",
+      shortDesc: "조용한 공간에서의 견학",
+      temp: 20,
+      weatherText: "실내 · 쾌적함",
+      storyPages: [
+        "오늘은 도서관과 박물관으로 견학을 가는 날이에요.\n조용히 책을 보고, 전시물을 관람해야 하는 공간이죠.",
+        "너무 요란한 소리가 나는 옷이나 액세서리는\n다른 사람들에게 방해가 될 수 있어요.\n앉아서 오래 구경해야 하니, 너무 불편한 옷도 좋지 않겠죠?",
+        "편안하면서도 단정한 옷차림,\n조용한 분위기를 함께 지킬 수 있는 옷을 골라보세요.\n이제 도서관·박물관 견학에 알맞은 옷차림을 만들어볼까요?"
+      ],
+      weights: { weather: 10, activity: 10, safety: 20, etiquette: 60 },
+      idealWarmth: 1,
+      warmthTolerance: 2,
+      targetActivity: 1.8,
+      safeRiskLow: 2,
+      safeRiskMid: 4,
+      minEtiquetteOk: 2.2,
+      minEtiquetteGood: 2.5,
+      formality: "formal"
+    }
+  };
+
+  // --------- 옷 데이터 (카테고리별) ----------
+  const CLOTHES = {
+    top: [
+      {
+        id: "tshirt_short",
+        name: "면 반팔 티셔츠",
+        warmth: 0,
+        activity: 3,
+        risk: 0,
+        etiquette: 3,
+        tags: ["운동복", "캐주얼"]
+      },
+      {
+        id: "tshirt_long",
+        name: "면 긴팔 티셔츠",
+        warmth: 1,
+        activity: 2,
+        risk: 0,
+        etiquette: 3,
+        tags: ["캐주얼"]
+      },
+      {
+        id: "blouse_fancy",
+        name: "프릴 블라우스",
+        warmth: 0,
+        activity: 1,
+        risk: 1,
+        etiquette: 2,
+        tags: ["장식많음", "조금격식"]
+      },
+      {
+        id: "hoodie",
+        name: "후드티",
+        warmth: 1,
+        activity: 2,
+        risk: 1,
+        etiquette: 2,
+        tags: ["후드끈", "캐주얼"]
+      },
+      {
+        id: "crop_sleeveless",
+        name: "민소매 크롭티",
+        warmth: -1,
+        activity: 2,
+        risk: 0,
+        etiquette: 1,
+        tags: ["노출높음", "캐주얼"]
+      },
+      {
+        id: "rashguard_top",
+        name: "래시가드 상의",
+        warmth: 0,
+        activity: 3,
+        risk: 0,
+        etiquette: 2,
+        tags: ["물놀이", "자외선차단"]
+      }
+    ],
+    bottom: [
+      {
+        id: "jogger_pants",
+        name: "트레이닝 바지",
+        warmth: 0,
+        activity: 3,
+        risk: 0,
+        etiquette: 3,
+        tags: ["운동복"]
+      },
+      {
+        id: "cotton_pants",
+        name: "면 바지",
+        warmth: 1,
+        activity: 2,
+        risk: 0,
+        etiquette: 3,
+        tags: ["단정"]
+      },
+      {
+        id: "jeans_skinny",
+        name: "스키니 청바지",
+        warmth: 1,
+        activity: 1,
+        risk: 0,
+        etiquette: 2,
+        tags: ["캐주얼"]
+      },
+      {
+        id: "shorts_sports",
+        name: "운동용 반바지",
+        warmth: -1,
+        activity: 3,
+        risk: 0,
+        etiquette: 2,
+        tags: ["운동복"]
+      },
+      {
+        id: "skirt_short",
+        name: "짧은 치마",
+        warmth: -1,
+        activity: 1,
+        risk: 1,
+        etiquette: 2,
+        tags: ["노출높음", "장식많음"]
+      },
+      {
+        id: "swim_shorts",
+        name: "물놀이 반바지",
+        warmth: -1,
+        activity: 3,
+        risk: 0,
+        etiquette: 2,
+        tags: ["물놀이"]
+      }
+    ],
+    outer: [
+      {
+        id: "no_outer",
+        name: "겉옷 입지 않기",
+        warmth: 0,
+        activity: 3,
+        risk: 0,
+        etiquette: 3,
+        tags: []
+      },
+      {
+        id: "cardigan_light",
+        name: "얇은 가디건",
+        warmth: 1,
+        activity: 2,
+        risk: 0,
+        etiquette: 3,
+        tags: ["단정"]
+      },
+      {
+        id: "padded_jacket",
+        name: "두꺼운 패딩 점퍼",
+        warmth: 3,
+        activity: 1,
+        risk: 0,
+        etiquette: 3,
+        tags: ["겨울용"]
+      },
+      {
+        id: "raincoat",
+        name: "우비",
+        warmth: 1,
+        activity: 2,
+        risk: 0,
+        etiquette: 3,
+        rain: 2,
+        tags: ["비옷", "방수"]
+      },
+      {
+        id: "coat_formal",
+        name: "코트",
+        warmth: 2,
+        activity: 1,
+        risk: 0,
+        etiquette: 3,
+        tags: ["격식"]
+      }
+    ],
+    shoes: [
+      {
+        id: "sneakers",
+        name: "운동화",
+        warmth: 0,
+        activity: 3,
+        risk: 0,
+        etiquette: 3,
+        rain: 0,
+        tags: ["운동복", "안정"]
+      },
+      {
+        id: "slippers",
+        name: "슬리퍼",
+        warmth: -1,
+        activity: 1,
+        risk: 3,
+        etiquette: 1,
+        rain: 0,
+        tags: ["위험", "캐주얼"]
+      },
+      {
+        id: "dress_shoes",
+        name: "구두",
+        warmth: 0,
+        activity: 1,
+        risk: 2,
+        etiquette: 3,
+        rain: 0,
+        tags: ["격식"]
+      },
+      {
+        id: "rain_boots",
+        name: "레인부츠",
+        warmth: 1,
+        activity: 2,
+        risk: 1,
+        etiquette: 3,
+        rain: 2,
+        tags: ["방수"]
+      },
+      {
+        id: "indoor_slippers",
+        name: "실내화",
+        warmth: 0,
+        activity: 2,
+        risk: 1,
+        etiquette: 3,
+        tags: ["실내용"]
+      },
+      {
+        id: "water_sandals",
+        name: "물놀이 샌들",
+        warmth: -1,
+        activity: 2,
+        risk: 1,
+        etiquette: 2,
+        rain: 2,
+        tags: ["물놀이", "방수"]
+      }
+    ],
+    accessory: [
+      {
+        id: "no_acc",
+        name: "액세서리 안 하기",
+        warmth: 0,
+        activity: 3,
+        risk: 0,
+        etiquette: 3,
+        tags: []
+      },
+      {
+        id: "cap_hat",
+        name: "캡 모자",
+        warmth: 0,
+        activity: 3,
+        risk: 0,
+        etiquette: 3,
+        tags: ["햇빛차단"]
+      },
+      {
+        id: "scarf_long",
+        name: "긴 목도리",
+        warmth: 1,
+        activity: 2,
+        risk: 2,
+        etiquette: 3,
+        tags: ["긴끈", "겨울"]
+      },
+      {
+        id: "big_earring",
+        name: "큰 링 귀걸이",
+        warmth: 0,
+        activity: 3,
+        risk: 2,
+        etiquette: 1,
+        tags: ["장식많음"]
+      },
+      {
+        id: "backpack",
+        name: "백팩",
+        warmth: 0,
+        activity: 2,
+        risk: 0,
+        etiquette: 3,
+        tags: ["실용적"]
+      },
+      {
+        id: "crossbag_small",
+        name: "작은 크로스백",
+        warmth: 0,
+        activity: 2,
+        risk: 1,
+        etiquette: 3,
+        tags: ["실용적"]
+      }
+    ]
+  };
+
+  // 기본값 rain, warmth 없는 경우 처리
+  function normalizeItem(item) {
+    return {
+      rain: 0,
+      ...item
+    };
+  }
+  Object.keys(CLOTHES).forEach(cat => {
+    CLOTHES[cat] = CLOTHES[cat].map(normalizeItem);
+  });
+
+  // --------- 상태 ---------
+  let currentScenarioKey = null;
+  let currentStoryIndex = 0;
+
+  function showScreen(id) {
+    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+  }
+
+  // --------- 시나리오 렌더링 ---------
+  function renderScenarioCards() {
+    const grid = document.getElementById("scenarioGrid");
+    grid.innerHTML = "";
+    Object.values(SCENARIOS).forEach(sc => {
+      const card = document.createElement("div");
+      card.className = "scenario-card";
+      card.dataset.key = sc.key;
+      card.innerHTML = `
+        <div class="scenario-title">
+          <span class="scenario-emoji">${sc.emoji}</span>${sc.name}
+        </div>
+        <div class="scenario-desc">${sc.shortDesc}</div>
+        <div class="scenario-meta">
+          기온 약 ${sc.temp}℃ · ${sc.weatherText}
+        </div>
+      `;
+      card.addEventListener("click", () => {
+        document.querySelectorAll(".scenario-card").forEach(c => c.classList.remove("selected"));
+        card.classList.add("selected");
+        currentScenarioKey = sc.key;
+        document.getElementById("btnScenarioNext").disabled = false;
+      });
+      grid.appendChild(card);
+    });
+  }
+
+  // --------- 스토리 렌더링 ---------
+  function renderStory() {
+    const sc = SCENARIOS[currentScenarioKey];
+    const pages = sc.storyPages;
+    const textEl = document.getElementById("storyText");
+    const idxEl = document.getElementById("storyPageIndex");
+    const badgeEl = document.getElementById("storyScenarioBadge");
+
+    document.getElementById("storyScenarioTitle").textContent =
+      `${sc.emoji} ${sc.name}`;
+    document.getElementById("storyScenarioMeta").textContent =
+      `기온 약 ${sc.temp}℃ · ${sc.weatherText}`;
+
+    badgeEl.textContent = sc.name;
+    textEl.textContent = pages[currentStoryIndex] || "";
+    idxEl.textContent = `${currentStoryIndex + 1} / ${pages.length} 장`;
+
+    const btnNext = document.getElementById("btnStoryNext");
+    btnNext.textContent = currentStoryIndex === pages.length - 1
+      ? "옷 고르러 가기 ▶"
+      : "다음 장 넘기기 ▶";
+  }
+
+  // --------- 선택한 옷 가져오기 ---------
+  function getSelectedItems() {
+    const cats = ["top", "bottom", "outer", "shoes", "accessory"];
+    const selected = [];
+    cats.forEach(cat => {
+      const checked = document.querySelector(`input[name="sel_${cat}"]:checked`);
+      if (checked && checked.value !== "") {
+        const info = JSON.parse(checked.dataset.info);
+        selected.push(info);
+      }
+    });
+    return selected;
+  }
+
+  function updateDressSummary() {
+    const items = getSelectedItems();
+    const count = items.length;
+    let warmthSum = 0;
+    let actSum = 0;
+    let riskSum = 0;
+    let etiquetteSum = 0;
+
+    items.forEach(it => {
+      warmthSum += it.warmth || 0;
+      actSum += it.activity || 0;
+      riskSum += it.risk || 0;
+      etiquetteSum += it.etiquette || 0;
+    });
+
+    const actAvg = count ? (actSum / count) : 0;
+    const etiAvg = count ? (etiquetteSum / count) : 0;
+
+    document.getElementById("sumCount").textContent = `${count}개`;
+    document.getElementById("sumWarmth").textContent = warmthSum.toFixed(1);
+    document.getElementById("sumActivity").textContent = actAvg.toFixed(2);
+    document.getElementById("sumRisk").textContent = riskSum.toFixed(1);
+    document.getElementById("sumEtiquette").textContent = etiAvg.toFixed(2);
+  }
+
+  // --------- 옷 고르기 화면 렌더링 ---------
+  function renderDressScreen() {
+    const sc = SCENARIOS[currentScenarioKey];
+    document.getElementById("dressScenarioInfo").textContent =
+      `${sc.emoji} ${sc.name} 상황에 어울리는 상의, 하의, 겉옷, 신발, 액세서리를 골라보세요.`;
+
+    const badges = document.getElementById("dressBadges");
+    badges.innerHTML = "";
+    const b1 = document.createElement("span");
+    b1.className = "badge";
+    b1.textContent = `기온: 약 ${sc.temp}℃ (${sc.weatherText})`;
+    const b2 = document.createElement("span");
+    b2.className = "badge";
+    b2.textContent = `중요한 요소: ${
+      sc.formality === "formal" ? "예절·단정함, 상황에 맞는 옷" :
+      sc.key === "sportsday" || sc.key === "indoorPE" ? "활동성·안전" :
+      sc.key === "winterTrip" ? "보온·안전" :
+      sc.key === "rainySchool" || sc.key === "waterPlay" ? "방수·안전" :
+      "편안함과 예절"
+    }`;
+    badges.appendChild(b1);
+    badges.appendChild(b2);
+
+    const grid = document.getElementById("dressGrid");
+    grid.innerHTML = "";
+
+    const groups = [
+      { key: "top", label: "상의", subtitle: "윗옷을 한 가지 고르세요." },
+      { key: "bottom", label: "하의", subtitle: "바지나 치마를 한 가지 고르세요." },
+      { key: "outer", label: "겉옷", subtitle: "겉옷이 필요 없다면 '겉옷 입지 않기'를 고르세요." },
+      { key: "shoes", label: "신발", subtitle: "신발은 꼭 한 가지 골라야 해요." },
+      { key: "accessory", label: "액세서리/가방", subtitle: "꼭 필요하지 않다면 '액세서리 안 하기'를 골라도 좋아요." }
+    ];
+
+    groups.forEach(group => {
+      const box = document.createElement("div");
+      box.className = "group-card";
+      box.innerHTML = `
+        <div class="group-title">${group.label}</div>
+        <div class="group-subtitle">${group.subtitle}</div>
+      `;
+      const items = CLOTHES[group.key] || [];
+      items.forEach(item => {
+        const option = document.createElement("label");
+        option.className = "item-option";
+
+        const input = document.createElement("input");
+        input.type = "radio";
+        input.name = `sel_${group.key}`;
+        input.value = item.id;
+        input.dataset.info = JSON.stringify({ category: group.key, ...item });
+        input.addEventListener("change", updateDressSummary);
+
+        // 기본 선택값: no_outer, no_acc 등
+        if (item.id === "no_outer" || item.id === "no_acc") {
+          input.checked = true;
+        }
+
+        const infoDiv = document.createElement("div");
+        infoDiv.innerHTML = `
+          <div class="item-main">${item.name}</div>
+          <div class="item-meta">
+            따뜻함: ${item.warmth ?? 0}, 활동성: ${item.activity ?? 0}, 위험도: ${item.risk ?? 0}, 예절: ${item.etiquette ?? 0}
+            ${item.tags && item.tags.length ? "<br>특징: " + item.tags.join(", ") : ""}
+          </div>
+        `;
+
+        option.appendChild(input);
+        option.appendChild(infoDiv);
+        box.appendChild(option);
+      });
+
+      grid.appendChild(box);
+    });
+
+    updateDressSummary();
+  }
+
+  // --------- 평가 함수 ---------
+  function evaluateOutfit() {
+    const sc = SCENARIOS[currentScenarioKey];
+    const items = getSelectedItems();
+    const cats = ["top", "bottom", "shoes"];
+    // 필수 카테고리 체크
+    let missingRequired = [];
+    cats.forEach(cat => {
+      const hasCat = items.some(it => it.category === cat);
+      if (!hasCat) missingRequired.push(cat);
+    });
+
+    let warmthSum = 0;
+    let actSum = 0;
+    let riskSum = 0;
+    let etiquetteSum = 0;
+    let rainScoreFlag = false;
+
+    items.forEach(it => {
+      warmthSum += it.warmth || 0;
+      actSum += it.activity || 0;
+      riskSum += it.risk || 0;
+      etiquetteSum += it.etiquette || 0;
+      if (it.rain && it.rain > 0) rainScoreFlag = true;
+    });
+
+    const count = items.length || 1;
+    const actAvg = actSum / count;
+    const etiAvg = etiquetteSum / count;
+
+    // 1) 날씨/보온 점수
+    let weatherScore = 0;
+    const wWeight = sc.weights.weather || 0;
+    const diff = Math.abs(warmthSum - sc.idealWarmth);
+    if (diff <= sc.warmthTolerance) {
+      weatherScore = wWeight;
+    } else if (diff <= sc.warmthTolerance + 1) {
+      weatherScore = Math.round(wWeight * 0.6);
+    } else {
+      weatherScore = Math.round(wWeight * 0.3);
+    }
+
+    // 비나 물놀이 상황에서 방수 장비가 없으면 감점
+    if ((sc.key === "rainySchool" || sc.key === "waterPlay") && !rainScoreFlag) {
+      weatherScore = Math.round(weatherScore * 0.5);
+    }
+
+    // 2) 활동성 점수
+    let activityScore = 0;
+    const aWeight = sc.weights.activity || 0;
+    if (actAvg >= sc.targetActivity + 0.2) {
+      activityScore = aWeight;
+    } else if (actAvg >= sc.targetActivity - 0.3) {
+      activityScore = Math.round(aWeight * 0.7);
+    } else {
+      activityScore = Math.round(aWeight * 0.3);
+    }
+
+    // 3) 안전 점수
+    let safetyScore = 0;
+    const sWeight = sc.weights.safety || 0;
+    if (riskSum <= sc.safeRiskLow) {
+      safetyScore = sWeight;
+    } else if (riskSum <= sc.safeRiskMid) {
+      safetyScore = Math.round(sWeight * 0.6);
+    } else {
+      safetyScore = Math.round(sWeight * 0.2);
+    }
+
+    // 4) 예절·TPO 점수
+    let etiquetteScore = 0;
+    const eWeight = sc.weights.etiquette || 0;
+    if (etiAvg >= sc.minEtiquetteGood) {
+      etiquetteScore = eWeight;
+    } else if (etiAvg >= sc.minEtiquetteOk) {
+      etiquetteScore = Math.round(eWeight * 0.7);
+    } else {
+      etiquetteScore = Math.round(eWeight * 0.3);
+    }
+
+    let totalScore = weatherScore + activityScore + safetyScore + etiquetteScore;
+    if (missingRequired.length > 0) {
+      totalScore = Math.max(0, totalScore - 10 * missingRequired.length);
+    }
+    if (totalScore > 100) totalScore = 100;
+
+    // 피드백 작성
+    const feedbackLines = [];
+    const goodLines = [];
+    const badLines = [];
+
+    // 좋은 점
+    if (weatherScore >= (sc.weights.weather || 0) * 0.8) {
+      goodLines.push("· 기온과 날씨에 어울리는 옷을 잘 골랐어요.");
+    }
+    if (activityScore >= (sc.weights.activity || 0) * 0.8) {
+      goodLines.push("· 움직이기 편한 옷을 선택해서 활동하기 좋아요.");
+    }
+    if (safetyScore >= (sc.weights.safety || 0) * 0.8) {
+      goodLines.push("· 장식이나 위험한 요소가 적어서 비교적 안전한 옷차림이에요.");
+    }
+    if (etiquetteScore >= (sc.weights.etiquette || 0) * 0.8) {
+      goodLines.push("· 이 상황에 어울리는 단정한 옷차림을 잘 선택했어요.");
+    }
+
+    // 아쉬운 점
+    if (weatherScore <= (sc.weights.weather || 0) * 0.4) {
+      if (warmthSum < sc.idealWarmth - sc.warmthTolerance) {
+        badLines.push("· 전체적으로 너무 얇게 입어서 추울 수 있어요. 옷을 한 겹 더 입거나 더 따뜻한 옷을 골라보세요.");
+      } else {
+        badLines.push("· 너무 두껍게 입어서 더울 수 있어요. 활동을 방해하지 않을 정도로 덜 껴입어도 괜찮아요.");
+      }
+    }
+    if ((sc.key === "rainySchool" || sc.key === "waterPlay") && !rainScoreFlag) {
+      badLines.push("· 비나 물에 젖을 수 있는 날인데, 우비나 레인부츠처럼 방수가 되는 옷이나 신발을 고르지 않았어요.");
+    }
+    if (activityScore <= (sc.weights.activity || 0) * 0.4) {
+      badLines.push("· 움직이기 편하지 않은 옷이 있어요. 체육·활동 상황에서는 트레이닝복, 운동화처럼 활동성이 좋은 옷을 골라보세요.");
+    }
+    if (safetyScore <= (sc.weights.safety || 0) * 0.4) {
+      badLines.push("· 긴 끈이나 큰 장신구, 위험한 신발 등이 있어 다칠 수 있어요. 장식이 적고 발을 잘 잡아주는 신발이 더 안전해요.");
+    }
+    if (etiquetteScore <= (sc.weights.etiquette || 0) * 0.4) {
+      badLines.push("· 이 상황에서는 조금 더 단정한 옷을 입는 것이 좋아요. 문구나 그림이 너무 과하지 않은 옷을 골라보세요.");
+    }
+    if (missingRequired.length > 0) {
+      badLines.push("· 상의, 하의, 신발은 꼭 모두 골라야 해요. 빠진 부분이 없는지 다시 한 번 확인해 보세요.");
+    }
+
+    feedbackLines.push(`▶ ${SCENARIOS[currentScenarioKey].name} 옷차림 평가\n`);
+    if (goodLines.length) {
+      feedbackLines.push("◎ 잘한 점");
+      feedbackLines.push(...goodLines);
+      feedbackLines.push("");
+    }
+    if (badLines.length) {
+      feedbackLines.push("◎ 더 좋게 만들 수 있는 점");
+      feedbackLines.push(...badLines);
+    } else if (!goodLines.length) {
+      feedbackLines.push("· 이번 선택을 바탕으로, 상황과 날씨를 한 번 더 생각해 보면서 다른 조합도 만들어 보면 좋아요.");
+    }
+
+    // 결과 뱃지
+    let badge = "";
+    if (totalScore >= 90) {
+      badge = "완전 멋진 선택! 상황·날씨·예절을 모두 잘 고려한 옷차림이에요. 👍";
+    } else if (totalScore >= 75) {
+      badge = "꽤 좋은 선택이에요. 한두 부분만 더 다듬으면 더 완벽해질 수 있어요.";
+    } else if (totalScore >= 50) {
+      badge = "기본은 잡혀 있지만, 날씨·안전·예절 중 한 가지 이상을 다시 생각해 보면 좋아요.";
+    } else {
+      badge = "이번 옷차림을 계기로, 상황에 맞는 옷차림을 다시 한 번 정리해 보면 좋겠어요.";
+    }
+
+    return {
+      score: totalScore,
+      badge,
+      feedback: feedbackLines.join("\n"),
+      items,
+      warmthSum,
+      actAvg,
+      riskSum,
+      etiAvg
+    };
+  }
+
+  function renderResult(result) {
+    document.getElementById("resultScore").textContent = result.score;
+    document.getElementById("resultBadge").textContent = result.badge;
+
+    const fb = document.getElementById("feedbackBox");
+    fb.textContent = result.feedback;
+    fb.classList.remove("good", "bad");
+    if (result.score >= 75) fb.classList.add("good");
+    else fb.classList.add("bad");
+
+    const listEl = document.getElementById("resultSummaryList");
+    listEl.innerHTML = "";
+
+    const li1 = document.createElement("li");
+    li1.textContent = `전체 따뜻함 합계: ${result.warmthSum.toFixed(1)}`;
+    const li2 = document.createElement("li");
+    li2.textContent = `활동성 평균: ${result.actAvg.toFixed(2)} (1~3)`;
+    const li3 = document.createElement("li");
+    li3.textContent = `위험 요소 합계: ${result.riskSum.toFixed(1)} (낮을수록 안전)`;
+    const li4 = document.createElement("li");
+    li4.textContent = `예절 점수 평균: ${result.etiAvg.toFixed(2)} (1~3)`;
+    const li5 = document.createElement("li");
+    li5.textContent = "선택한 옷: " + (result.items.length
+      ? result.items.map(it => it.name).join(", ")
+      : "선택한 옷이 없습니다.");
+
+    [li1, li2, li3, li4, li5].forEach(li => listEl.appendChild(li));
+  }
+
+  // --------- 이벤트 바인딩 ---------
+  document.addEventListener("DOMContentLoaded", () => {
+    renderScenarioCards();
+
+    document.getElementById("btnScenarioNext").addEventListener("click", () => {
+      if (!currentScenarioKey) return;
+      currentStoryIndex = 0;
+      renderStory();
+      showScreen("screen-story");
+    });
+
+    document.getElementById("btnStoryBack").addEventListener("click", () => {
+      showScreen("screen-scenario");
+    });
+
+    document.getElementById("btnStoryNext").addEventListener("click", () => {
+      const sc = SCENARIOS[currentScenarioKey];
+      if (currentStoryIndex < sc.storyPages.length - 1) {
+        currentStoryIndex += 1;
+        renderStory();
+      } else {
+        renderDressScreen();
+        showScreen("screen-dress");
+      }
+    });
+
+    document.getElementById("btnDressBack").addEventListener("click", () => {
+      showScreen("screen-story");
+    });
+
+    document.getElementById("btnEvaluate").addEventListener("click", () => {
+      const result = evaluateOutfit();
+      renderResult(result);
+      showScreen("screen-result");
+    });
+
+    document.getElementById("btnResultBack").addEventListener("click", () => {
+      showScreen("screen-dress");
+    });
+
+    document.getElementById("btnRestart").addEventListener("click", () => {
+      currentScenarioKey = null;
+      currentStoryIndex = 0;
+      renderScenarioCards();
+      document.getElementById("btnScenarioNext").disabled = true;
+      showScreen("screen-scenario");
+    });
+  });
+</script>
+</body>
+</html>
