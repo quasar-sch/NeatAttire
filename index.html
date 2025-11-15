@@ -263,6 +263,21 @@
       margin: 4px 0 0;
     }
 
+    textarea {
+      width: 100%;
+      min-height: 80px;
+      font-size: 12px;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #d0d5e3;
+      resize: vertical;
+    }
+    #copyStatus {
+      font-size: 11px;
+      color: #555;
+      margin-top: 4px;
+    }
+
     @media (max-width: 600px) {
       .app {
         margin: 12px;
@@ -360,6 +375,19 @@
       <ul id="resultSummaryList"></ul>
     </div>
 
+    <div class="result-list" style="margin-top:14px;">
+      <strong>🖼 이 옷차림으로 그림 만들어보기</strong>
+      <p style="font-size:12px;color:#555;margin:4px 0 6px;">
+        아래 프롬프트를 복사해서 ChatGPT의 이미지 만들기 기능에 붙여넣으면,<br>
+        방금 고른 옷차림을 입은 학생 그림을 그려볼 수 있어요.
+      </p>
+      <textarea id="imagePrompt" readonly></textarea>
+      <div class="btn-row" style="justify-content:flex-start;margin-top:6px;">
+        <button id="btnCopyPrompt" class="secondary">프롬프트 복사하기</button>
+        <div id="copyStatus"></div>
+      </div>
+    </div>
+
     <div class="btn-row">
       <button class="secondary" id="btnResultBack">◀ 옷 다시 고르기</button>
       <button id="btnRestart">처음부터 다시 하기 🔁</button>
@@ -378,7 +406,7 @@
       temp: 22,
       weatherText: "맑음 · 약간 따뜻함",
       storyPages: [
-        "오늘은 드디어 기다리던 운동회 날!\n아침 햇살이 교실 창문으로 쏋아지고, 운동장에는 알록달록 깃발이 펄럭였어요.\n“반 대표 계주 선수는 바로 나야!”\n너는 설렘 가득한 마음으로 침대에서 벌떡 일어났어요.",
+        "오늘은 드디어 기다리던 운동회 날!\n아침 햇살이 교실 창문으로 쏟아지고, 운동장에는 알록달록 깃발이 펄럭였어요.\n“반 대표 계주 선수는 바로 나야!”\n너는 설렘 가득한 마음으로 침대에서 벌떡 일어났어요.",
         "옷장을 열자 옷들이 속닥속닥 이야기를 나누기 시작했어요.\n“나를 입고 가! 내가 제일 눈에 띄거든!” 반짝이는 옷이 말했어요.\n“운동회에는 활동하기 좋은 옷이 더 중요하지 않을까?”\n트레이닝복 바지가 조용히 말했죠.",
         "오늘은 달리기도 하고, 줄넘기도 하고, 친구들과 단체 게임도 해야 해요.\n너무 덥지도 춥지도 않으면서, 무엇보다 다치지 않도록 안전한 옷차림을 해야겠죠?\n자, 이제 운동회에 가장 잘 어울리는 옷을 직접 골라볼까요?"
       ],
@@ -550,7 +578,7 @@
     }
   };
 
-  // --------- 옷 데이터 (카테고리별, 시나리오별 노출 다르게) ----------
+  // --------- 옷 데이터 (시나리오별 + 이상한 옵션 포함) ----------
   const CLOTHES = {
     top: [
       {
@@ -581,7 +609,7 @@
         risk: 1,
         etiquette: 2,
         tags: ["장식많음", "조금격식"],
-        scenarios: ["familyMeal", "schoolEvent", "museum"]
+        scenarios: ["familyMeal", "schoolEvent", "museum", "sportsday"]
       },
       {
         id: "hoodie",
@@ -600,8 +628,8 @@
         activity: 2,
         risk: 0,
         etiquette: 1,
-        tags: ["노출높음", "캐주얼"],
-        scenarios: ["sportsday", "waterPlay"]
+        tags: ["노출높음", "부적절"],
+        scenarios: ["sportsday", "waterPlay", "schoolEvent"]
       },
       {
         id: "rashguard_top",
@@ -632,6 +660,26 @@
         etiquette: 3,
         tags: ["겨울", "단정"],
         scenarios: ["winterTrip", "familyMeal", "museum"]
+      },
+      {
+        id: "pjs_top",
+        name: "잠옷 상의",
+        warmth: 1,
+        activity: 1,
+        risk: 0,
+        etiquette: 1,
+        tags: ["부적절"],
+        scenarios: ["familyMeal", "schoolEvent", "museum", "sportsday"]
+      },
+      {
+        id: "text_tshirt",
+        name: "과한 문구 티셔츠",
+        warmth: 0,
+        activity: 2,
+        risk: 0,
+        etiquette: 1,
+        tags: ["부적절"],
+        scenarios: ["schoolEvent", "museum", "familyMeal", "sportsday"]
       }
     ],
     bottom: [
@@ -673,7 +721,7 @@
         risk: 0,
         etiquette: 2,
         tags: ["운동복"],
-        scenarios: ["sportsday", "indoorPE", "waterPlay"]
+        scenarios: ["sportsday", "indoorPE", "waterPlay", "winterTrip"]
       },
       {
         id: "skirt_short",
@@ -683,7 +731,7 @@
         risk: 1,
         etiquette: 2,
         tags: ["노출높음", "장식많음"],
-        scenarios: ["familyMeal", "schoolEvent"]
+        scenarios: ["familyMeal", "schoolEvent", "sportsday"]
       },
       {
         id: "swim_shorts",
@@ -704,6 +752,16 @@
         etiquette: 3,
         tags: ["격식"],
         scenarios: ["familyMeal", "schoolEvent", "museum"]
+      },
+      {
+        id: "pjs_bottom",
+        name: "잠옷 바지",
+        warmth: 1,
+        activity: 1,
+        risk: 0,
+        etiquette: 1,
+        tags: ["부적절"],
+        scenarios: ["familyMeal", "schoolEvent", "museum", "sportsday"]
       }
     ],
     outer: [
@@ -767,6 +825,16 @@
         etiquette: 3,
         tags: ["운동복"],
         scenarios: ["sportsday", "indoorPE", "rainySchool", "waterPlay"]
+      },
+      {
+        id: "fur_coat",
+        name: "털 달린 화려한 코트",
+        warmth: 3,
+        activity: 1,
+        risk: 0,
+        etiquette: 2,
+        tags: ["장식많음", "부적절"],
+        scenarios: ["sportsday", "waterPlay", "indoorPE"]
       }
     ],
     shoes: [
@@ -789,8 +857,8 @@
         risk: 3,
         etiquette: 1,
         rain: 0,
-        tags: ["위험", "캐주얼"],
-        scenarios: ["waterPlay", "rainySchool"]
+        tags: ["위험", "캐주얼", "부적절"],
+        scenarios: ["waterPlay", "rainySchool", "sportsday", "indoorPE", "museum"]
       },
       {
         id: "dress_shoes",
@@ -801,7 +869,7 @@
         etiquette: 3,
         rain: 0,
         tags: ["격식"],
-        scenarios: ["familyMeal", "schoolEvent", "museum"]
+        scenarios: ["familyMeal", "schoolEvent", "museum", "sportsday"]
       },
       {
         id: "rain_boots",
@@ -845,6 +913,17 @@
         rain: 1,
         tags: ["겨울"],
         scenarios: ["winterTrip"]
+      },
+      {
+        id: "high_heels",
+        name: "높은 굽 하이힐",
+        warmth: 0,
+        activity: 0,
+        risk: 3,
+        etiquette: 1,
+        rain: 0,
+        tags: ["운동불가", "부적절"],
+        scenarios: ["sportsday", "indoorPE", "waterPlay", "rainySchool"]
       }
     ],
     accessory: [
@@ -885,8 +964,8 @@
         activity: 3,
         risk: 2,
         etiquette: 1,
-        tags: ["장식많음"],
-        scenarios: ["familyMeal", "schoolEvent"]
+        tags: ["장식많음", "부적절"],
+        scenarios: ["familyMeal", "schoolEvent", "sportsday"]
       },
       {
         id: "backpack",
@@ -927,15 +1006,22 @@
         etiquette: 3,
         tags: ["겨울"],
         scenarios: ["winterTrip"]
+      },
+      {
+        id: "headband_flag",
+        name: "깃발 달린 머리띠",
+        warmth: 0,
+        activity: 2,
+        risk: 1,
+        etiquette: 1,
+        tags: ["장식많음", "부적절"],
+        scenarios: ["museum", "schoolEvent", "familyMeal"]
       }
     ]
   };
 
   function normalizeItem(item) {
-    return {
-      rain: 0,
-      ...item
-    };
+    return { rain: 0, ...item };
   }
   Object.keys(CLOTHES).forEach(cat => {
     CLOTHES[cat] = CLOTHES[cat].map(normalizeItem);
@@ -1082,7 +1168,6 @@
       `;
 
       let items = CLOTHES[group.key] || [];
-      // 시나리오별로 노출할 옷 필터링
       items = items.filter(it => {
         if (it.scenarios && !it.scenarios.includes(sc.key)) return false;
         return true;
@@ -1099,7 +1184,6 @@
         input.dataset.info = JSON.stringify({ category: group.key, ...item });
         input.addEventListener("change", updateDressSummary);
 
-        // 기본 선택값: no_outer, no_acc
         if (item.id === "no_outer" || item.id === "no_acc") {
           input.checked = true;
         }
@@ -1140,6 +1224,8 @@
     let riskSum = 0;
     let etiquetteSum = 0;
     let rainScoreFlag = false;
+    let hasInappropriate = false;
+    let hasCannotMove = false;
 
     items.forEach(it => {
       warmthSum += it.warmth || 0;
@@ -1147,6 +1233,8 @@
       riskSum += it.risk || 0;
       etiquetteSum += it.etiquette || 0;
       if (it.rain && it.rain > 0) rainScoreFlag = true;
+      if ((it.tags || []).includes("부적절")) hasInappropriate = true;
+      if ((it.tags || []).includes("운동불가")) hasCannotMove = true;
     });
 
     const count = items.length || 1;
@@ -1165,7 +1253,6 @@
       weatherScore = Math.round(wWeight * 0.3);
     }
 
-    // 비/물놀이 상황에서 방수 장비 없으면 감점
     if ((sc.key === "rainySchool" || sc.key === "waterPlay") && !rainScoreFlag) {
       weatherScore = Math.round(weatherScore * 0.5);
     }
@@ -1179,6 +1266,11 @@
       activityScore = Math.round(aWeight * 0.7);
     } else {
       activityScore = Math.round(aWeight * 0.3);
+    }
+
+    // 운동불가 아이템 있으면 활동성 큰 감점
+    if (hasCannotMove && aWeight > 0) {
+      activityScore = Math.round(activityScore * 0.4);
     }
 
     // 3) 안전 점수 (완화 버전)
@@ -1203,10 +1295,19 @@
       etiquetteScore = Math.round(eWeight * 0.3);
     }
 
+    // 총점
     let totalScore = weatherScore + activityScore + safetyScore + etiquetteScore;
+
+    // 필수 카테고리 누락 감점
     if (missingRequired.length > 0) {
       totalScore = Math.max(0, totalScore - 10 * missingRequired.length);
     }
+
+    // 부적절한 옷(잠옷, 과한 문구, 과도한 노출 등) 추가 감점
+    if (hasInappropriate) {
+      totalScore = Math.max(0, totalScore - 15);
+    }
+
     if (totalScore > 100) totalScore = 100;
 
     const feedbackLines = [];
@@ -1248,6 +1349,12 @@
     if (missingRequired.length > 0) {
       badLines.push("· 상의, 하의, 신발은 꼭 모두 골라야 해요. 빠진 부분이 없는지 다시 한 번 확인해 보세요.");
     }
+    if (hasInappropriate) {
+      badLines.push("· 잠옷, 과한 문구, 과도한 장식처럼 학교나 공식 자리에서 어울리지 않는 옷이 있어요. 상황에 맞는 단정한 옷을 다시 골라보세요.");
+    }
+    if (hasCannotMove && (sc.key === "sportsday" || sc.key === "indoorPE" || sc.key === "waterPlay")) {
+      badLines.push("· 운동하거나 움직이기 어려운 신발(예: 높은 굽)은 체육·물놀이 상황에서 특히 위험해요.");
+    }
 
     feedbackLines.push(`▶ ${SCENARIOS[currentScenarioKey].name} 옷차림 평가\n`);
     if (goodLines.length) {
@@ -1285,6 +1392,22 @@
     };
   }
 
+  function buildImagePrompt(result) {
+    const sc = SCENARIOS[currentScenarioKey];
+    const items = result.items;
+    const names = items.map(it => it.name).join(", ");
+    const genderText = "초등학교 5학년 학생";
+    const scenarioText = sc.name;
+    const clothesText = names || "기본 교복";
+
+    const prompt =
+`${genderText}이(가) ${scenarioText} 상황에서
+"${clothesText}" 를(을) 입고 있는 전신 일러스트.
+밝고 따뜻한 색감, 한국 초등학교 교과서 삽화 느낌,
+너무 과하지 않은 단순한 배경, 정면 또는 약간 비스듬한 각도.`;
+    return prompt;
+  }
+
   function renderResult(result) {
     const sc = SCENARIOS[currentScenarioKey];
     document.getElementById("resultScore").textContent = result.score;
@@ -1314,7 +1437,6 @@
 
     [li1, li2, li3, li4, li5].forEach(li => listEl.appendChild(li));
 
-    // 겨울/비/물놀이 상황용 추가 한 줄 (선택)
     if (currentScenarioKey === "winterTrip") {
       const li6 = document.createElement("li");
       li6.textContent = `겨울 옷차림으로 봤을 때 따뜻함은 ${
@@ -1324,6 +1446,12 @@
       }한 편이에요.`;
       listEl.appendChild(li6);
     }
+
+    // 이미지 프롬프트 채우기
+    const promptText = buildImagePrompt(result);
+    const promptArea = document.getElementById("imagePrompt");
+    promptArea.value = promptText;
+    document.getElementById("copyStatus").textContent = "";
   }
 
   // --------- 이벤트 바인딩 ---------
@@ -1372,6 +1500,17 @@
       renderScenarioCards();
       document.getElementById("btnScenarioNext").disabled = true;
       showScreen("screen-scenario");
+    });
+
+    document.getElementById("btnCopyPrompt").addEventListener("click", async () => {
+      const prompt = document.getElementById("imagePrompt").value;
+      const statusEl = document.getElementById("copyStatus");
+      try {
+        await navigator.clipboard.writeText(prompt);
+        statusEl.textContent = "프롬프트를 복사했어요. ChatGPT 이미지 만들기 창에 붙여넣어 보세요.";
+      } catch (e) {
+        statusEl.textContent = "복사가 잘 안 되면, 위 텍스트를 직접 드래그해서 복사해 주세요.";
+      }
     });
   });
 </script>
